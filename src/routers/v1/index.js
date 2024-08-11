@@ -1,12 +1,12 @@
-const express = require('express');
+const express = require("express");
 const {BookingController} = require('../../controller/index')
-
+// const { createChannel } = require("../../utils/messageQueue");
 
 const router = express.Router();
+// const channel = await createChannel();
+const bookingController = new BookingController();
 
-
-router.post('/bookings',BookingController.create)
-
-
+router.post("/bookings", bookingController.create);
+router.post("/publish",bookingController.sendMessageToQueue)
 
 module.exports = router;
