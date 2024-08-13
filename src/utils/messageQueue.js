@@ -3,7 +3,6 @@ const {EXCHANGE_NAME, MESSAGE_BROKER_URL} = require('../config//server-config')
 
 const createChannel = async () => {
   try {
-    console.log("EXCHANGE_NAME",EXCHANGE_NAME)
     const connection = await amqplib.connect(MESSAGE_BROKER_URL);
     const channel = await connection.createChannel();
     await channel.assertExchange(EXCHANGE_NAME, "direct", false);
@@ -15,9 +14,8 @@ const createChannel = async () => {
 
 const subscribeMessage = async (channel, service, binding_key) => {
     try {
-        const applicationQueue = await channel.assertQueue('QUEUE_NAME');
-        channel.bindQueue(applicationQueue, EXCHANGE_NAME, binding_key);
-      
+        const applicationQueue = await channel.assertQueue('REMINDER_QUEUE');
+        channel.bindQueue(applicationQueue.queue, EXCHANGE_NAME, binding_key);
         channel.consume(applicationQueue.queue, (msg) => {
           console.log("received data");
           console.log(msg.content.toString());
@@ -30,7 +28,7 @@ const subscribeMessage = async (channel, service, binding_key) => {
 };
 const publishMessage = async (channel, binding_key, message) => {
     try {
-        await channel.assertQueue('QUEUE_NAME');
+        await channel.assertQueue('REMINDER_QUEUE');
         await channel.publish(EXCHANGE_NAME, binding_key, Buffer.from(message));
     } catch (error) {
         throw error;
